@@ -139,4 +139,4 @@ EMAIL_USE_TLS = True         # Recommended for security (encryption)
 DEFAULT_FROM_EMAIL = 'Task Manager <sameesheikh02@gmail.com>'
 
 EMAIL_HOST_USER = 'sameesheikh02@gmail.com'
-EMAIL_HOST_PASSWORD = 'klhf whgm efjh tqvs'  # Use environment variables for security in production
+EMAIL_HOST_PASSWORD = ''  # Use environment variables for security in production
