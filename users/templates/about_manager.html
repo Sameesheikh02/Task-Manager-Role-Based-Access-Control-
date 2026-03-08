@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Manager Details - {{ manager.first_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Back Navigation -->
+    <div class="mb-4">
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+        <a href="mailto:{{ manager.email }}" class="btn btn-sm btn-outline-light ms-2">
+            <i class="fas fa-envelope me-1"></i>Email
+        </a>
+    </div>
+
+    <!-- Manager Profile Header -->
+    <div class="card shadow-sm border-0 mb-4 bg-primary text-white">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+                <div class="bg-white text-primary rounded-circle p-3 me-3 d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                    <i class="fas fa-user-tie fa-2x"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-0">{{ manager.first_name }} {{ manager.last_name }}</h2>
+                    <p class="mb-0 opacity-75">{{ manager.email }} &middot; <span class="badge bg-light text-primary">Manager</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small fw-bold">Department</h6>
+                    <h4 class="mb-0">{{ manager.department|default:"General" }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small fw-bold">Total Tasks Created</h6>
+                    <h4 class="mb-0 text-primary">{{ created_tasks.count }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignments Table -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold text-dark">
+                <i class="fas fa-tasks me-2 text-primary"></i>Tasks Created by {{ manager.first_name }}
+            </h5>
+            <small class="text-muted">List of tasks this manager created and who they are assigned to.</small>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Task Title</th>
+                            <th>Assigned To (Member)</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th class="text-end pe-4">Due Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in created_tasks %}
+                        <tr>
+                            <td class="ps-4 fw-bold">{{ task.title }}</td>
+                            <td>
+                                {% if task.assignee %}
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light text-secondary rounded-circle me-2 d-flex align-items-center justify-content-center border" style="width: 30px; height: 30px; font-size: 12px;">
+                                            {{ task.assignee.first_name|first }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ task.assignee.first_name }} {{ task.assignee.last_name }}</div>
+                                            <div class="small text-muted">{{ task.assignee.email }}</div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <span class="badge bg-secondary">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if task.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% elif task.status == 'in_progress' %}
+                                    <span class="badge bg-primary">In Progress</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if task.priority == 'high' %}
+                                    <span class="text-danger fw-bold">High</span>
+                                {% elif task.priority == 'medium' %}
+                                    <span class="text-warning fw-bold">Medium</span>
+                                {% else %}
+                                    <span class="text-success fw-bold">Low</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4 text-muted">
+                                {{ task.deadline|date:"M d, Y"|default:"No Deadline" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="fas fa-clipboard-list fa-2x mb-2 opacity-50"></i>
+                                <p class="mb-0">This manager has not created any tasks yet.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

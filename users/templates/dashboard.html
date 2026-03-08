@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Task Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        padding: 40px 20px;
+    }
+
+    .card-stats {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        transition: 0.2s;
+    }
+
+    .card-stats:hover {
+        transform: translateY(-3px);
+    }
+
+    .profile-box {
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container dashboard-container">
+
+    <!-- Welcome Section -->
+    <div class="mb-4">
+        <h2 class="fw-bold">Hello, {{ user.first_name }} 👋</h2>
+        <p class="text-muted">Welcome to your Task Management Dashboard</p>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="card profile-box mb-4 p-3">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-8">
+                <h5 class="fw-semibold mb-1">{{ user.first_name }} {{ user.last_name }}</h5>
+                <p class="text-muted mb-1">{{ user.email }}</p>
+                <span class="badge bg-primary">{{ user.role|title }}</span>
+                {% if user.department %}
+                    <span class="badge bg-secondary">{{ user.department }}</span>
+                {% endif %}
+            </div>
+
+            <div class="col-md-4 text-md-end">
+                <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger px-4">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section (Optional Demo Boxes) -->
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="card card-stats p-4">
+                <h6 class="fw-semibold text-muted mb-2">Your Role</h6>
+                <h3 class="fw-bold">{{ user.role|title }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-stats p-4">
+                <h6 class="fw-semibold text-muted mb-2">Department</h6>
+                <h3 class="fw-bold">
+                    {% if user.department %}
+                        {{ user.department }}
+                    {% else %}
+                        <span class="text-muted small">Not set</span>
+                    {% endif %}
+                </h3>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-stats p-4">
+                <h6 class="fw-semibold text-muted mb-2">Account Created</h6>
+                <h3 class="fw-bold">{{ user.date_joined|date:"M d, Y" }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% comment %} tooltip: {
+    callbacks: {
+        label: function(context) {
+            const label = context.label || '';
+            const value = Number(context.parsed || 0);
+            const dataArr = (context.chart.data.datasets && context.chart.data.datasets[context.datasetIndex] && context.chart.data.datasets[context.datasetIndex].data) || [];
+            const total = dataArr.reduce(function(sum, v) { return sum + (Number(v) || 0); }, 0);
+            const percentage = total ? ((value / total) * 100).toFixed(1) + "%" : "0%";
+            return (label ? label + ': ' : '') + value + " (" + percentage + ")";
+        }
+    }
+} {% endcomment %}

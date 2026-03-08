@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Task Manager - Master Your Workflow{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+
+    /* --- Viewport & Scroll Fix --- */
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* Strictly removes the scrollbar */
+        background-color: #ffffff !important;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .hero-viewport {
+        position: relative;
+        /* Negates base.html padding (70px) to pull color up to the top */
+        margin-top: -70px; 
+        padding-top: 70px; 
+        height: 100vh; 
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #ffffff;
+    }
+
+    /* --- Lively Aurora Gradients (Inspired by Reference) --- */
+    .aurora {
+        position: absolute;
+        width: 55vw;
+        height: 55vw;
+        border-radius: 50%;
+        filter: blur(100px);
+        z-index: 1;
+        opacity: 0.35;
+        animation: pulse 15s infinite alternate ease-in-out;
+    }
+
+    .aurora-blue {
+        background: #2563eb;
+        top: -15%;
+        right: -5%;
+    }
+
+    .aurora-purple {
+        background: #9333ea;
+        bottom: -15%;
+        left: -5%;
+        animation-delay: -5s;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1) translate(0, 0); }
+        100% { transform: scale(1.15) translate(4%, 4%); }
+    }
+
+    /* --- Content (Refined Text Sizes) --- */
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        max-width: 850px;
+        padding: 0 20px;
+    }
+
+    .main-title {
+        font-size: 3.5rem; /* Increased from 2.8rem for more impact */
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        margin-bottom: 1.2rem;
+    }
+
+    .text-gradient {
+        background: linear-gradient(90deg, #2563eb, #7c3aed);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .sub-text {
+        font-size: 1.15rem; /* Slightly larger for readability */
+        color: #475569;
+        line-height: 1.6;
+        margin-bottom: 2.8rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* --- Modern Button --- */
+    .btn-lively {
+        background: #0f172a;
+        color: #ffffff;
+        padding: 14px 40px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1.05rem;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+    }
+
+    .btn-lively:hover {
+        background: #2563eb;
+        transform: translateY(-3px) scale(1.02);
+        color: white;
+        box-shadow: 0 15px 35px rgba(37, 99, 235, 0.25);
+    }
+
+    @media (max-width: 768px) {
+        .aurora {
+            width: 120vw; /* Make circles much larger on mobile */
+            height: 120vw;
+            filter: blur(60px); /* Reduce blur so color stays visible */
+            opacity: 0.25;
+        }
+        .aurora-blue {
+            top: -10%;
+            right: -20%;
+        }
+        .aurora-purple {
+            bottom: -10%;
+            left: -20%;
+        }
+        .main-title {
+            font-size: 2.2rem; /* Shrink text so it fits on one screen */
+        }
+        .sub-text {
+            font-size: 1rem;
+        }
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="hero-viewport">
+    <div class="aurora aurora-blue"></div>
+    <div class="aurora aurora-purple"></div>
+
+    <div class="hero-content">
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <span class="badge rounded-pill bg-white text-primary border px-4 py-2 shadow-sm">
+                        <i class="fas fa-check-circle me-2"></i>{{ message }}
+                    </span>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <h1 class="main-title">
+            Organize Your Team <br> <span class="text-gradient">Master Every Task.</span>
+        </h1>
+
+        <p class="sub-text">
+            A secure role-based system to assign priorities, track deadlines, and manage tasks with precision.
+        </p>
+
+        <div class="d-flex justify-content-center">
+            {% if not user.is_authenticated %}
+                <a href="{% url 'login_view' %}" class="btn-lively">
+                    Go to Dashboard <i class="fas fa-arrow-right"></i>
+                </a>
+            {% else %}
+                <a href="{% url 'dashboard' %}" class="btn-lively">
+                    Go to Dashboard <i class="fas fa-arrow-right"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<script>
+    // Parallax effect: Background moves with mouse cursor
+    document.addEventListener('mousemove', (e) => {
+        const x = (e.clientX - window.innerWidth / 2) * 0.015;
+        const y = (e.clientY - window.innerHeight / 2) * 0.015;
+        
+        document.querySelector('.aurora-blue').style.transform = `translate(${x}px, ${y}px)`;
+        document.querySelector('.aurora-purple').style.transform = `translate(${-x}px, ${-y}px)`;
+    });
+</script>
+{% endblock %}

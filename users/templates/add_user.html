@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{% block title %}Add New User - Task Manager{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="d-flex align-items-center mb-4">
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="fw-bold mb-0">Add New User</h2>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-user-plus me-2"></i>Create User</h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% if messages %}
+                            <div class="alert alert-primary" role="alert">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="id_email" class="form-label fw-bold small text-muted text-uppercase">Email Address <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-envelope text-muted"></i></span>
+                                    <input type="email" name="email" id="id_email" class="form-control"
+                                           value="{{ form.email.value|default:'' }}" placeholder="name@company.com" required>
+                                </div>
+                                {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_password" class="form-label fw-bold small text-muted text-uppercase">Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-lock text-muted"></i></span>
+                                    <input type="password" name="password" id="id_password" class="form-control" required>
+                                </div>
+                                {% if form.password.errors %}
+                                    <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_password_confirm" class="form-label fw-bold small text-muted text-uppercase">Confirm Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-lock text-muted"></i></span>
+                                    <input type="password" name="password_confirm" id="id_password_confirm" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_first_name" class="form-label fw-bold small text-muted text-uppercase">First Name <span class="text-danger">*</span></label>
+                                <input type="text" name="first_name" id="id_first_name" class="form-control"
+                                       value="{{ form.first_name.value|default:'' }}" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_last_name" class="form-label fw-bold small text-muted text-uppercase">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" name="last_name" id="id_last_name" class="form-control"
+                                       value="{{ form.last_name.value|default:'' }}" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_role" class="form-label fw-bold small text-muted text-uppercase">Role <span class="text-danger">*</span></label>
+                                <select name="role" id="id_role" class="form-select">
+                                    <option value="member" {% if form.role.value == 'member' %}selected{% endif %}>Member</option>
+                                    <option value="manager" {% if form.role.value == 'manager' %}selected{% endif %}>Manager</option>
+                                    <option value="admin" {% if form.role.value == 'admin' %}selected{% endif %}>Admin</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_department" class="form-label fw-bold small text-muted text-uppercase">Department</label>
+                                <input type="text" name="department" id="id_department" class="form-control"
+                                       value="{{ form.department.value|default:'' }}" placeholder="e.g. IT, HR, Sales" required>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="id_is_active"
+                                           {% if form.is_active.value %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="id_is_active">Active account</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'admin_dashboard' %}" class="btn btn-light border">Cancel</a>
+                            <button type="submit" class="btn btn-success px-4 shadow-sm">
+                                <i class="fas fa-plus-circle me-2"></i>Create User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Task - Task Manager{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+
+            <div class="d-flex align-items-center mb-4">
+                <a href="{% url 'manager_dashboard' %}" class="btn btn-outline-secondary me-3 shadow-sm">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="fw-bold mb-0">Edit Task</h2>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning bg-opacity-75 text-dark py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-pen-square me-2"></i>Update Task Details</h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="POST" action="{% url 'edit_task' task.pk %}">
+                        {% csrf_token %}
+
+                        {% if messages %}
+                            <div class="alert alert-primary" role="alert">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+
+
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label fw-bold small text-muted text-uppercase">Task Title</label>
+                            <input type="text" name="title" value="{{ task.title }}" class="form-control" id="id_title" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label fw-bold small text-muted text-uppercase">Description</label>
+                            <textarea name="description" class="form-control" id="id_description" rows="4">{{ task.description }}</textarea>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="id_deadline" class="form-label fw-bold small text-muted text-uppercase">Deadline</label>
+                                <input type="date" name="deadline" value="{{ task.deadline|date:'Y-m-d' }}" class="form-control" id="id_deadline">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_priority" class="form-label fw-bold small text-muted text-uppercase">Priority</label>
+                                <select name="priority" class="form-select" id="id_priority">
+                                    <option value="low" {% if task.priority == 'low' %}selected{% endif %}>Low</option>
+                                    <option value="medium" {% if task.priority == 'medium' %}selected{% endif %}>Medium</option>
+                                    <option value="high" {% if task.priority == 'high' %}selected{% endif %}>High</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="id_assignee" class="form-label fw-bold small text-muted text-uppercase">Assign To</label>
+                                <select name="assignee" class="form-select" id="id_assignee">
+                                    <option value="">-- Unassigned --</option>
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}" {% if task.assignee and task.assignee.id == user.id %}selected{% endif %}>
+                                            {{ user.first_name|default:user.email }} {{ user.last_name|default:'' }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_status" class="form-label fw-bold small text-muted text-uppercase">Status</label>
+                                <select name="status" class="form-select" id="id_status">
+                                    <option value="pending" {% if task.status == 'pending' %}selected{% endif %}>Pending</option>
+                                    <option value="in_progress" {% if task.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                    <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <!-- Delete uses POST to delete_task -->
+                            <a href="{% url 'manager_dashboard' %}" class="btn btn-light border">Cancel</a>
+                            <button type="submit" class="btn btn-warning shadow-sm">
+                                <i class="fas fa-save me-2"></i>Update Task
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

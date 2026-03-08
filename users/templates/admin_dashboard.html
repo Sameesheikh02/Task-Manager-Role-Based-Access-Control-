@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Task Manager{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+    {% if messages %}
+        <div class="alert alert-primary" role="alert">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+        <div class="text-center text-md-start">
+            <h2 class="fw-bold text-dark text-nowrap mb-1">Admin Dashboard</h2>
+            <p class="text-muted mb-0">System Overview & User Management</p>
+        </div>
+
+        <div class="d-flex gap-2 align-items-center w-100 w-md-auto justify-content-center justify-content-md-end">
+            <button class="btn btn-outline-secondary position-relative shadow-sm" type="button" id="notificationBell"
+                    data-bs-toggle="collapse" data-bs-target="#adminNotifs" aria-expanded="false" aria-controls="adminNotifs">
+                <i class="fas fa-bell" aria-hidden="true"></i>
+                {% if unread_notifications_count|default:0 > 0 %}
+                    <span id="unreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ unread_notifications_count }}
+                    </span>
+                {% endif %}
+            </button>
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+            <a href="{% url 'add_user' %}" class="btn btn-primary shadow-sm text-nowrap">
+                <i class="fas fa-user-plus me-2" aria-hidden="true"></i>Add User
+            </a>
+        </div>
+    </div>
+
+    <div class="collapse mb-4" id="adminNotifs">
+        <div class="card card-body shadow-sm border-0 bg-light">
+             <h6 class="fw-bold mb-3">System Alerts</h6>
+             <ul class="list-group">
+                 {% for notif in notifications %}
+                     <li class="list-group-item d-flex justify-content-between align-items-center border-0 mb-1 rounded flex-wrap">
+                         <span class="text-truncate me-2" title="{{ notif.message }}">
+                             <i class="fas fa-info-circle text-primary me-2" aria-hidden="true"></i>{{ notif.message }}
+                         </span>
+                         <small class="text-muted text-nowrap mt-1 mt-sm-0 ms-auto">{{ notif.created_at|timesince }} ago</small>
+                     </li>
+                 {% empty %}
+                     <li class="list-group-item text-muted border-0 bg-transparent ps-0">No recent alerts.</li>
+                 {% endfor %}
+             </ul>
+         </div>
+    </div>
+
+    <div class="row g-3 g-md-4 mb-5">
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3 flex-shrink-0">
+                        <i class="fas fa-users text-primary fa-2x" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 text-uppercase small fw-bold">Total Users</h6>
+                        <h3 class="fw-bold mb-0">{{ total_users_count|default:"0" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-info bg-opacity-10 p-3 rounded-circle me-3 flex-shrink-0">
+                        <i class="fas fa-user-tie text-info fa-2x" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 text-uppercase small fw-bold">Total Managers</h6>
+                        <h3 class="fw-bold mb-0">{{ total_managers_count|default:"0" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3 flex-shrink-0">
+                        <i class="fas fa-user text-success fa-2x" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 text-uppercase small fw-bold">Total Members</h6>
+                        <h3 class="fw-bold mb-0">{{ total_members_count|default:"0" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="fas fa-file-csv me-2 text-success" aria-hidden="true"></i>Generate Report</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'generate_report_csv' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">User</label>
+                            <select name="filter_user" class="form-select">
+                                <option value="">All Users</option>
+                                {% for u in users.object_list %}
+                                    {% if u.role != 'admin' %}
+                                    <option value="{{ u.id }}">
+                                            {{ u.first_name }} {{ u.last_name }} ({{ u.role|capfirst }})
+                                    </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Task Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-uppercase text-muted">From</label>
+                                <input type="date" name="date_from" class="form-control">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-uppercase text-muted">To</label>
+                                <input type="date" name="date_to" class="form-control">
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success shadow-sm">
+                                <i class="fas fa-download me-2" aria-hidden="true"></i>Download CSV
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="mb-0 fw-bold text-dark">User Role Distribution</h6>
+                    <i class="fas fa-chart-pie text-muted" aria-hidden="true"></i>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div class="w-100 position-relative" style="height: 300px;">
+                        <canvas id="userRoleChart" role="img" aria-label="User role distribution chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-5" id="user-management">
+        <div class="card-header bg-white py-3 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-users-cog me-2" aria-hidden="true"></i>User Management</h5>
+
+            <form method="GET" action="#user-management" class="d-flex w-100 w-md-auto">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search users..." value="{{ request.GET.q|default:'' }}">
+                    <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-nowrap">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Email</th> 
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                            {% if u.role != 'admin' %}
+                            <tr>
+                                <td class="ps-4 fw-semibold">
+                                    {% if u.role == 'manager' %}
+                                        <a href="{% url 'about_manager' u.id %}" class="text-decoration-none text-reset fw-semibold">{{ u.email }}</a>
+                                    {% else %}
+                                        <a href="{% url 'about_member' u.id %}" class="text-decoration-none text-reset fw-semibold">{{ u.email }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>{{ u.first_name }} {{ u.last_name }}</td>
+                                <td>
+                                    {% if u.role == 'manager' %}
+                                        <span class="badge bg-primary">Manager</span>
+                                    {% else %}
+                                        <span class="badge bg-black bg-opacity-75">Member</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ u.department|default:"-" }}</td>
+                                <td>
+                                    {% if u.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="{% url 'edit_user' u.id %}" class="btn btn-sm btn-outline-primary" title="Edit User">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
+                                    </a>
+
+                                    <form method="POST" action="{% url 'delete_user' u.id %}" class="d-inline-block ms-1" onsubmit="return confirm('Delete this user? This cannot be undone.');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete User">
+                                            <i class="fas fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No staff members found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if users.has_other_pages %}
+        <div class="card-footer bg-white py-3">
+            <nav aria-label="User table navigation">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if users.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ users.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+
+                    {% for i in users.paginator.page_range %}
+                        {% if users.number == i %}
+                            <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if users.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ users.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+const bellBtn = document.getElementById('notificationBell');
+    const badge = document.getElementById('unreadBadge');
+
+    if (bellBtn) {
+        bellBtn.addEventListener('click', function() {
+            // 1. Hide the red number immediately
+            if (badge) {
+                badge.style.display = 'none';
+            }
+
+            // 2. Tell the server to mark all as read
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch("{% url 'mark_all_read' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }); // No .then or .catch needed!
+        });
+    }
+
+document.addEventListener("DOMContentLoaded", function() {
+    Chart.defaults.font.family = "'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif";
+    Chart.defaults.color = '#6c757d';
+
+    // User Role Distribution Chart (Managers vs Members ONLY)
+    (function() {
+        const managerCount = Number({{ total_managers_count|default:"0" }});
+        const memberCount = Number({{ total_members_count|default:"0" }});
+
+        const ctx = document.getElementById('userRoleChart');
+        if (!ctx) return;
+
+        const data = [managerCount, memberCount];
+
+        new Chart(ctx.getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: ['Managers', 'Members'],
+                datasets: [{
+                    data: data,
+                    backgroundColor: ['#0d6efd', '#6c757d'],
+                    borderWidth: 1,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    
+                }
+            }
+        });
+    })();
+});
+</script>
+{% endblock %}

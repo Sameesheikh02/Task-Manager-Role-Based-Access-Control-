@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{#
+Expected context:
+- user_obj    (the CustomUser instance being edited)
+- form        (optional Django form bound to initial/user data)
+- messages    (django.contrib.messages)
+#}
+
+{% block title %}Edit User - Task Manager{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <div class="d-flex align-items-center mb-4">
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="fw-bold mb-0">Edit User</h2>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-user-edit me-2"></i>Update User Details</h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% if messages %}
+                            <div class="alert alert-primary" role="alert">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="id_email" class="form-label fw-bold small text-muted text-uppercase">Email Address</label>
+                                <input type="email" name="email" id="id_email" class="form-control"
+                                       value="{{ form.email.value|default:user_obj.email }}" required>
+                                
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_first_name" class="form-label fw-bold small text-muted text-uppercase">First Name</label>
+                                <input type="text" name="first_name" id="id_first_name" class="form-control"
+                                       value="{{ form.first_name.value|default:user_obj.first_name }}" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_last_name" class="form-label fw-bold small text-muted text-uppercase">Last Name</label>
+                                <input type="text" name="last_name" id="id_last_name" class="form-control"
+                                       value="{{ form.last_name.value|default:user_obj.last_name }}" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_role" class="form-label fw-bold small text-muted text-uppercase">Role</label>
+                                <select name="role" id="id_role" class="form-select">
+                                    <option value="member" {% if form.role.value == 'member' or user_obj.role == 'member' %}selected{% endif %}>Member</option>
+                                    <option value="manager" {% if form.role.value == 'manager' or user_obj.role == 'manager' %}selected{% endif %}>Manager</option>
+                                    {% comment %} <option value="admin" {% if form.role.value == 'admin' or user_obj.role == 'admin' %}selected{% endif %}>Admin</option> {% endcomment %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_department" class="form-label fw-bold small text-muted text-uppercase">Department</label>
+                                <input type="text" name="department" id="id_department" class="form-control"
+                                       value="{{ form.department.value|default:user_obj.department }}" required>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check form-switch py-2">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="id_is_active"
+                                           {% if form.is_active.value or user_obj.is_active %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="id_is_active">Active Account</label>
+                                    <div class="form-text">Inactive users cannot log in to the system.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'admin_dashboard' %}" class="btn btn-light border">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+
+                    {# Optional: small "Reset password" form/button can be added here if desired #}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

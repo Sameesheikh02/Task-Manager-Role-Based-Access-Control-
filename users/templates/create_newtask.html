@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Create New Task - Task Manager{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+
+            <div class="d-flex align-items-center mb-4">
+                <a href="{% url 'manager_dashboard' %}" class="btn btn-outline-secondary me-3 shadow-sm">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="fw-bold mb-0">Task Creation</h2>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-plus-circle me-2"></i>Create New Task</h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="POST" action="{% url 'create_task' %}">
+                        {% csrf_token %}
+
+                        {% if messages %}
+                            <div class="alert alert-primary" role="alert">                    
+                                {% for message in messages %}
+                                    {{ message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label fw-bold small text-muted text-uppercase">Task Title <span class="text-danger">*</span></label>
+                            <input type="text" name="title" class="form-control" id="id_title" placeholder="e.g. Q3 Financial Report" required
+                                   value="{{ form.title.value|default:'' }}">
+                            {% if form and form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label fw-bold small text-muted text-uppercase">Description</label>
+                            <textarea name="description" class="form-control" id="id_description" rows="4" placeholder="Provide details about the task...">{{ form.description.value|default:'' }}</textarea>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="id_deadline" class="form-label fw-bold small text-muted text-uppercase">Deadline</label>
+                                <input type="date" name="deadline" class="form-control" id="id_deadline" value="{{ form.deadline.value|default:'' }}">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_priority" class="form-label fw-bold small text-muted text-uppercase">Priority</label>
+                                <select name="priority" class="form-select" id="id_priority">
+                                    <option value="low" {% if form.priority.value == 'low' %}selected{% endif %}>Low</option>
+                                    <option value="medium" {% if form.priority.value == 'medium' or not form.priority.value %}selected{% endif %}>Medium</option>
+                                    <option value="high" {% if form.priority.value == 'high' %}selected{% endif %}>High</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="id_assignee" class="form-label fw-bold small text-muted text-uppercase">Assign To</label>
+                                <select name="assignee" class="form-select" id="id_assignee">
+                                    <option value="">-- Unassigned --</option>
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}" {% if form.assignee.value and form.assignee.value == user.id|stringformat:"s" %}selected{% endif %}>{{ user.first_name|default:user.email }} {{ user.last_name|default:'' }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_status" class="form-label fw-bold small text-muted text-uppercase">Initial Status</label>
+                                <select name="status" class="form-select" id="id_status">
+                                    <option value="pending" {% if form.status.value == 'pending' or not form.status.value %}selected{% endif %}>Pending</option>
+                                    <option value="in_progress" {% if form.status.value == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                    <option value="completed" {% if form.status.value == 'completed' %}selected{% endif %}>Completed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'manager_dashboard' %}" class="btn btn-light border">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                <i class="fas fa-check me-2"></i>Create Task
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
